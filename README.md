@@ -1,2 +1,0 @@
-# CocoScan Application
- 
