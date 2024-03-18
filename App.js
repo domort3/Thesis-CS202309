@@ -11,7 +11,7 @@ import ImageCapture from "./src/components/ImageCapture";
 const App = () => {
   return (
     <View style={styles.container}>
-      <HomeScreen />
+      <ImageCapture />
     </View>
   )
 }
