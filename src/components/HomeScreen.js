@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Image, SafeAreaView, ImageBackground, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, ImageBackground, Animated, TouchableOpacity, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = () => {
@@ -45,6 +45,7 @@ const HomeScreen = () => {
           resizeMode='cover'
           source={require('../../assets/brown.png')}
         >
+          <StatusBar backgroundColor="saddlebrown" />
           <View style={styles.imageContainer}>
           
             <View style={styles.overlay}>

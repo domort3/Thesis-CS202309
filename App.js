@@ -2,6 +2,8 @@ import React from "react"
 import { View, StyleSheet } from "react-native";
 import HomeScreen from "./src/components/HomeScreen";
 import ImageCapture from "./src/components/ImageCapture";
+import InfoScreen from "./src/components/InfoScreen";
+
 
 
 
@@ -11,7 +13,7 @@ import ImageCapture from "./src/components/ImageCapture";
 const App = () => {
   return (
     <View style={styles.container}>
-      <ImageCapture />
+      <InfoScreen />
     </View>
   )
 }

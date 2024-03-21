@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, Button, SafeAreaView, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Button, SafeAreaView, StyleSheet, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { Camera } from 'expo-camera';
 import { shareAsync } from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
@@ -71,6 +71,7 @@ export default function App() {
 
     return (
       <SafeAreaView style={styles.container}>
+        <StatusBar backgroundColor="saddlebrown" />
         <Image style={styles.preview} source={{ uri: photo.uri }} />
         <Button title="Share" onPress={sharePic} />
         {hasMediaLibraryPermission ? <Button title="Save" onPress={savePhoto} /> : undefined}
