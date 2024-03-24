@@ -15,7 +15,7 @@ const InfoScreen = () => {
   });
 
   return (
-    <ImageBackground source={require('../../assets/brown.png')} style={styles.background}>
+    <ImageBackground source={require('../../assets/green.png')} style={styles.background}>
       <StatusBar backgroundColor="saddlebrown" />
       <View style={styles.container}>
         <FlatList

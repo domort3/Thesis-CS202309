@@ -9,7 +9,7 @@ const Paginator = ({ data, currentIndex }) => {
           key={index}
           style={[
             styles.dot,
-            { backgroundColor: index === currentIndex ? 'saddlebrown' : 'lightgray' },
+            { backgroundColor: index === currentIndex ? 'cadetblue' : 'lightgray' },
           ]}
         />
       ))}

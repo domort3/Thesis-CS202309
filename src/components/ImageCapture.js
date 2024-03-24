@@ -89,7 +89,7 @@ export default function App() {
           </View>
         </TouchableOpacity>
         <View style={styles.cameraButton}>
-          <Ionicons name="camera" size={36} color="saddlebrown" onPress={takePic} />
+          <Ionicons name="camera" size={36} color="cadetblue" onPress={takePic} />
         </View>
       </View>
     </Camera>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 2,
     borderRadius: 1,
-    borderColor: 'saddlebrown',
+    borderColor: 'cadetblue',
     borderRadius: 50,
     padding: 10,
     marginLeft: 60,
@@ -131,13 +131,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderColor: 'saddlebrown',
+    borderColor: 'cadetblue',
     borderWidth: 1,
     borderRadius: 5,
   },
 
   galleryButtonText: {
-    color: 'saddlebrown',
+    color: 'cadetblue',
     fontWeight: 'bold',
     fontSize: 12,
   },

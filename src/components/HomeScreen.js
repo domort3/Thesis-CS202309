@@ -43,9 +43,9 @@ const HomeScreen = () => {
         <ImageBackground
           style={styles.imgBackground}
           resizeMode='cover'
-          source={require('../../assets/brown.png')}
+          source={require('../../assets/green.png')}
         >
-          <StatusBar backgroundColor="saddlebrown" />
+          <StatusBar backgroundColor="aquamarine" />
           <View style={styles.imageContainer}>
           
             <View style={styles.overlay}>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       title: {
-        color: 'saddlebrown',
+        color: 'black',
         fontSize: 30,
         fontWeight: 'bold',
         position: 'absolute', 
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
         transform: [{ translateY: 330 }], 
       },
       desc: {
-        color: 'saddlebrown',
+        color: 'black',
         fontWeight: 'bold',
         position: 'absolute', 
         top: '50%', 
