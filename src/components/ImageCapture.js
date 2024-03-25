@@ -71,7 +71,7 @@ export default function App() {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar backgroundColor="saddlebrown" />
+        <StatusBar backgroundColor="aquamarine" />
         <Image style={styles.preview} source={{ uri: photo.uri }} />
         <Button title="Share" onPress={sharePic} />
         {hasMediaLibraryPermission ? <Button title="Save" onPress={savePhoto} /> : undefined}
@@ -115,6 +115,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     paddingHorizontal: 25,
+  },
+
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 10,
+    zIndex: 1,
   },
 
   cameraButton: {
