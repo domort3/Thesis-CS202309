@@ -1,48 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, Button, SafeAreaView, StyleSheet, Image, TouchableOpacity, StatusBar } from 'react-native';
-import { Camera } from 'expo-camera';
-import { shareAsync } from 'expo-sharing';
-import * as MediaLibrary from 'expo-media-library';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Text,
+  View,
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
+import { Camera } from "expo-camera";
+import { shareAsync } from "expo-sharing";
+import * as MediaLibrary from "expo-media-library";
+import { Feather } from "@expo/vector-icons";
 
-export default function App() {
+export default function App({ navigation }) {
   let cameraRef = useRef();
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [photo, setPhoto] = useState();
-  const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
-
-  const handleGalleryPress = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setPhoto(result);
-    }
-  };
 
   useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
-      const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync();
-      setHasCameraPermission(cameraPermission.status === 'granted');
-      setHasMediaLibraryPermission(mediaLibraryPermission.status === 'granted');
+      const mediaLibraryPermission =
+        await MediaLibrary.requestPermissionsAsync();
+      setHasCameraPermission(cameraPermission.status === "granted");
+      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
     })();
   }, []);
 
   if (hasCameraPermission === undefined) {
     return <Text>Requesting permissions...</Text>;
   } else if (!hasCameraPermission) {
-    return <Text>Permission for camera not granted. Please change in settings.</Text>;
+    return (
+      <Text>Permission for camera not granted. Please change in settings.</Text>
+    );
   }
 
   let takePic = async () => {
@@ -71,10 +64,12 @@ export default function App() {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar backgroundColor="aquamarine" />
+        <StatusBar backgroundColor="#D0F0C0" />
         <Image style={styles.preview} source={{ uri: photo.uri }} />
         <Button title="Share" onPress={sharePic} />
-        {hasMediaLibraryPermission ? <Button title="Save" onPress={savePhoto} /> : undefined}
+        {hasMediaLibraryPermission ? (
+          <Button title="Save" onPress={savePhoto} />
+        ) : undefined}
         <Button title="Discard" onPress={() => setPhoto(undefined)} />
       </SafeAreaView>
     );
@@ -82,15 +77,16 @@ export default function App() {
 
   return (
     <Camera style={styles.container} ref={cameraRef}>
-      <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={handleGalleryPress}>
-          <View style={styles.galleryButton}>
-            <Text style={styles.galleryButtonText}>Gallery</Text>
-          </View>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Feather name="arrow-left" size={25} color="white" />
+      </TouchableOpacity>
+      <View style={styles.outerBorder}>
+        <TouchableOpacity style={styles.innerBorder} onPress={takePic}>
+          <View style={styles.cameraButton} />
         </TouchableOpacity>
-        <View style={styles.cameraButton}>
-          <Ionicons name="camera" size={36} color="cadetblue" onPress={takePic} />
-        </View>
       </View>
     </Camera>
   );
@@ -99,58 +95,37 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    paddingBottom: 20,
-    paddingTop: 5,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 25,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 10,
+    position: "absolute",
+    top: 40,
+    left: 20,
     zIndex: 1,
   },
 
+  outerBorder: {
+    position: "absolute",
+    bottom: 30,
+    width: 70,
+    height: 70,
+    borderRadius: 45,
+    backgroundColor: "transparent",
+    borderColor: "white",
+    borderWidth: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   cameraButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderRadius: 1,
-    borderColor: 'cadetblue',
-    borderRadius: 50,
-    padding: 10,
-    marginLeft: 60,
+    width: 60,
+    height: 60,
+    borderRadius: 35,
+    backgroundColor: "white",
   },
-
-  galleryButton: {
-    backgroundColor: 'white',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderColor: 'cadetblue',
-    borderWidth: 1,
-    borderRadius: 5,
-  },
-
-  galleryButtonText: {
-    color: 'cadetblue',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-
   preview: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     flex: 1,
   },
 });
