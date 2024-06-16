@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:background="#000"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linLayout_outside"
+        android:orientation="vertical"
+        android:layout_below="@+id/imageView">
+
+
+
+
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linLayout_inside"
+        android:orientation="horizontal"
+        android:layout_below="@+id/imageView"
+            >
+
+        <Button
+            android:id="@+id/button_select"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Select Image" />
+
+        <Button
+            android:id="@+id/button_predict"
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:text="Predict" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/text_forPredict"
+            android:layout_width="match_parent"
+            android:layout_height="81dp"
+            android:textSize="25dp"
+            android:layout_marginLeft="10dp"
+            android:text="Test" />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
