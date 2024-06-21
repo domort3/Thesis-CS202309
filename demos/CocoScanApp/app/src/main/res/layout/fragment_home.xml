@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightgreen"
+    tools:context=".HomeFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="640dp"
+        android:gravity="center"
+        android:text="COCOSCAN"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="30sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="695dp"
+        android:gravity="center"
+        android:text="A Coconut Maturity Scanner"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="250dp"
+        android:layout_height="350dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/logo" />
+
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="370dp"
+        android:backgroundTint="@color/teagreen"
+        android:textColor="@color/darkgreen"
+        android:text="Camera" />
+
+    <Button
+        android:id="@+id/galleryButton"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="430dp"
+        android:backgroundTint="@color/teagreen"
+        android:textColor="@color/darkgreen"
+        android:text="Gallery" />
+
+</FrameLayout>
