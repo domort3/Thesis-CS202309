@@ -44,10 +44,9 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-
-
         }
 
+        //
         //create interpreter, values obtained from interpreter technically not needed, but added
         //in case of changing to a different model
         val modelForInterpreter = FileUtil.loadMappedFile(this, "35-epoch_float32.tflite")

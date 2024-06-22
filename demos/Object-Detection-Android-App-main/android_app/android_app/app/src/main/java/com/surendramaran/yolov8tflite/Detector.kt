@@ -36,6 +36,8 @@ class Detector(
         .add(CastOp(INPUT_IMAGE_TYPE))
         .build()
 
+
+
     fun setup() {
         val model = FileUtil.loadMappedFile(context, modelPath)
         val options = Interpreter.Options()
