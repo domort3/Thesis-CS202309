@@ -8,23 +8,33 @@
     tools:context=".MainActivity">
 
     <FrameLayout
-        android:layout_height="match_parent"
+        android:id="@+id/frame_container"
         android:layout_width="match_parent"
-        android:id="@+id/frame_container"/>
-    
+        android:layout_height="match_parent"/>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
         android:id="@+id/bottom_navigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_menu"
-        android:background="@color/teagreen"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="@drawable/bottom_nav_background"
+        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
+        app:itemIconSize="25dp"
         app:itemIconTint="@color/black"
         app:itemTextColor="@color/black"
-        app:itemIconSize="25dp"
-        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_menu"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_photo_camera_24"
+        android:backgroundTint="@color/seagreen"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="-30dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

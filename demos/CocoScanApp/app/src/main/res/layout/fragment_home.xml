@@ -30,9 +30,10 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="350dp"
+        android:layout_width="240dp"
+        android:layout_height="340dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:src="@drawable/logo" />
 
     <Button
@@ -40,9 +41,11 @@
         android:layout_width="150dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="370dp"
+        android:layout_marginTop="380dp"
         android:backgroundTint="@color/teagreen"
         android:textColor="@color/darkgreen"
+        android:textSize="16dp"
+        android:textStyle="bold"
         android:text="Camera" />
 
     <Button
@@ -50,9 +53,11 @@
         android:layout_width="150dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="430dp"
+        android:layout_marginTop="440dp"
         android:backgroundTint="@color/teagreen"
         android:textColor="@color/darkgreen"
+        android:textSize="16dp"
+        android:textStyle="bold"
         android:text="Gallery" />
 
 </FrameLayout>

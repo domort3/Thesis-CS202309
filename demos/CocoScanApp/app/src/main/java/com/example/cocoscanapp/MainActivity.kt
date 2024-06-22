@@ -1,9 +1,12 @@
 package com.example.cocoscanapp
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import android.view.Window
+import android.view.WindowManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+        changeStatusBarColor("#C6EDC3")
         bottomNavigationView = findViewById(R.id.bottom_navigation)
 
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
@@ -27,16 +31,14 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(GalleryFragment())
                     true
                 }
-                R.id.bottom_camera -> {
-                    replaceFragment(CameraFragment())
-                    true
-                }
+
+
                 R.id.bottom_help -> {
                     replaceFragment(HelpFragment())
                     true
                 }
                 R.id.bottom_settings -> {
-                    replaceFragment(SettingsFragment())
+                    replaceFragment(MaturityFragment())
                     true
                 }
                 else -> false
@@ -44,7 +46,19 @@ class MainActivity : AppCompatActivity() {
         }
         replaceFragment(HomeFragment())
     }
+
+
     private fun replaceFragment(fragment: Fragment){
         supportFragmentManager.beginTransaction().replace(R.id.frame_container, fragment).commit()
     }
+
+    private fun changeStatusBarColor(color: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val window: Window = window
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = android.graphics.Color.parseColor(color)
+        }
+    }
+
+
 }

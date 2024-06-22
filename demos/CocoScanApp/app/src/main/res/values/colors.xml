@@ -6,5 +6,6 @@
     <color name="yellow">#FFD230</color>
     <color name="teagreen">#C6EDC3</color>
     <color name="lightgreen">#E9F8E2</color>
-    <color name="darkgreen">#013220</color>
+    <color name="darkgreen">#013220</color>|
+    <color name="seagreen">#2E8B57</color>
 </resources>

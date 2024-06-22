@@ -7,37 +7,48 @@
     tools:context=".MaturityFragment">
 
     <!-- TODO: Update blank fragment layout -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerMaturity"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="20dp"
+        android:layout_gravity="center_horizontal"
+        android:padding="24dp"/>
+
+    <LinearLayout
+        android:id="@+id/dotIndictorMaturity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:padding="24dp"
+        android:visibility="visible"/>
+
+
     <TextView
         android:id="@+id/textView"
-        android:layout_width="350dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:text="The application camera can only accept the pictures that are taken in the correct format. The picture with a check is the ideal format for taking the picture"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="470dp"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:gravity="center"/>
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="600dp"
-        android:layout_marginLeft="110dp"
-        android:backgroundTint="@color/white"
         android:textColor="@color/darkgreen"
         android:textStyle="bold"
-        android:text="Skip" />
+        android:textSize="16dp"
+        android:gravity="left"/>
 
     <Button
         android:id="@+id/button2"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="600dp"
-        android:layout_marginLeft="210dp"
+        android:layout_marginLeft="30dp"
         android:backgroundTint="@color/teagreen"
         android:textColor="@color/darkgreen"
         android:textStyle="bold"
-        android:text="Next" />
+        android:text="Tutorial" />
+
 
 </FrameLayout>

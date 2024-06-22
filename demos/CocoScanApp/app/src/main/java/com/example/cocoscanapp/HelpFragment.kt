@@ -3,7 +3,6 @@ package com.example.cocoscanapp
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -30,9 +29,6 @@ class HelpFragment : Fragment() {
             Model("Image 2", "Description 2", R.drawable.blurry),
             Model("Image 3", "Description 3", R.drawable.angle),
             Model("Image 4", "Description 4", R.drawable.dark),
-            Model("Image 5", "Description 5", R.drawable.sideview)
-
-
         )
 
         val adapter = MyPagerAdapter(items)

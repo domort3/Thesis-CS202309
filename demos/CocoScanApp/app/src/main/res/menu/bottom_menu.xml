@@ -12,9 +12,8 @@
         android:icon="@drawable/baseline_image_24"/>
 
     <item
-        android:id="@+id/bottom_camera"
-        android:title="Camera"
-        android:icon="@drawable/baseline_photo_camera_24"/>
+        android:id="@+id/placeholder"
+        android:title=""/>
 
     <item
         android:id="@+id/bottom_help"
