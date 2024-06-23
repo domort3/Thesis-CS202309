@@ -21,8 +21,6 @@ class DisplayFragment : Fragment() {
 
     private val REQUEST_IMAGE_CAPTURE = 100
     lateinit var bitmap: Bitmap
-    var appContext: Context = requireContext()
-
 
 
     override fun onCreateView(
@@ -43,7 +41,7 @@ class DisplayFragment : Fragment() {
 
         //-------------------- Using detector model here --------------------------
         //initialize model
-        var modelSetup = YOLOv8Detector(appContext)
+        var modelSetup = YOLOv8Detector(requireContext())
         modelSetup.setup()
 
         //run model

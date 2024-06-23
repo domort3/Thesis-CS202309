@@ -22,7 +22,7 @@ class GalleryFragment : Fragment() {
     lateinit var resView: TextView
     lateinit var imageView: ImageView
     lateinit var bitmap: Bitmap
-    var appContext: Context = requireContext()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,36 +39,10 @@ class GalleryFragment : Fragment() {
 
         //-------------------- Using detector model here --------------------------
         //initialize model
-        var modelSetup = YOLOv8Detector(appContext)
+        var modelSetup = YOLOv8Detector(requireContext())
         modelSetup.setup()
 
-        //run model
-        val outputs = modelSetup.detect(bitmap)
-        if (outputs != null) {
-            for (i in outputs){
-                if (i.cnf < 1.0f){
-                    var result = i
-                    if(result.labelName=="mature_coconut"){
-                        result.labelName="mature coconut"
-                    }
-                    else if(result.labelName=="overmature_coconut") {
-                        result.labelName="overmature coconut"
-                    }
-                    else if (result.labelName=="premature_coconut"){
-                        result.labelName="premature coconut"
-                    }
-                    // set TextView answer here
-                    //Variables from var result
-                    //.labelName = name of label identified
-                    //.rectF = rectF shape (if Paint() is to be used)
-                    //.cnf = confidence of result
-                    //text_predict.text = "label: " + result.labelName + ", confidence: " + result.cnf.toString()
-                    //build canvas
-                    //canvas.drawRect(result.rectF, boxPaint)
-                    break;
-                }
-            }
-        }
+
 
         //-------------------- Using detector model here --------------------------
 
@@ -80,21 +54,34 @@ class GalleryFragment : Fragment() {
         }
 
         predBtn.setOnClickListener {
-            val context = requireContext()
-            val model = AutoModel35EpochFloat32.newInstance(context)
-
-            // Creates inputs for reference.
-            val image = TensorImage.fromBitmap(bitmap)
-
-            // Runs model inference and gets result.
-            val outputs = model.process(image)
-            val output = outputs.outputAsCategoryList
-
-            // Releases model resources if no longer used.
-            model.close()
-
-            // Display result
-            resView.text = output.toString()
+            //run model
+            val outputs = modelSetup.detect(bitmap)
+            if (outputs != null) {
+                for (i in outputs){
+                    if (i.cnf < 1.0f){
+                        var result = i
+                        if(result.labelName=="mature_coconut"){
+                            result.labelName="mature coconut"
+                        }
+                        else if(result.labelName=="overmature_coconut") {
+                            result.labelName="overmature coconut"
+                        }
+                        else if (result.labelName=="premature_coconut"){
+                            result.labelName="premature coconut"
+                        }
+                        // set TextView answer here
+                        //Variables from var result
+                        //.labelName = name of label identified
+                        //.rectF = rectF shape (if Paint() is to be used)
+                        //.cnf = confidence of result
+                        //text_predict.text = "label: " + result.labelName + ", confidence: " + result.cnf.toString()
+                        //build canvas
+                        //canvas.drawRect(result.rectF, boxPaint)
+                        resView.text = result.labelName
+                        break;
+                    }
+                }
+            }
         }
 
         return view

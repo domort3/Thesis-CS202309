@@ -28,7 +28,7 @@ class YOLOv8Detector(private val context: Context) {
     private val IOU_THRESHOLD = 0.65f
     private val IOU_CLASS_DUPLICATED_THRESHOLD = 0.9f
 
-    private var labelsFile = "coco-labels.txt"
+    private var labelsFile = "labels.txt"
     private var modelFile = "35-epoch_float32.tflite"
     private var labels = mutableListOf<String>()
 
