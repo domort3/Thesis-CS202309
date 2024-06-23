@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.ImageView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
 
         changeStatusBarColor("#C6EDC3")
         bottomNavigationView = findViewById(R.id.bottom_navigation)
