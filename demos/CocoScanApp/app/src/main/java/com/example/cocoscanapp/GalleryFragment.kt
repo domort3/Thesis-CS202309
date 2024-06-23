@@ -78,6 +78,7 @@ class GalleryFragment : Fragment() {
                         //build canvas
                         //canvas.drawRect(result.rectF, boxPaint)
                         resView.text = result.labelName
+                        println(resView.text)
                         break;
                     }
                 }

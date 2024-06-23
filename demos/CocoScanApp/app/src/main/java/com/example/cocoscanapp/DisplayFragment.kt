@@ -63,8 +63,6 @@ class DisplayFragment : Fragment() {
                         result.labelName="premature coconut"
                     }
 
-                    val toast = Toast.makeText(requireContext(),  result.labelName, Toast.LENGTH_SHORT)
-                    toast.show()
                     resultView.text = result.labelName
                     // set TextView answer here
                     //Variables from var result

@@ -149,7 +149,7 @@ class YOLOv8Detector(private val context: Context) {
 
     private fun applyNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
         var nmsPredictions = mutableListOf<predictionVal>()
-        for (c in 0 until outputSize[1]-7){
+        for (c in 0 until outputSize[2]-7){
             val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
                 8400
             ) { l, r -> // Intentionally reversed to put high confidence at the head of the queue.

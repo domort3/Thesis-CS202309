@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/resView"
         android:text="Prediction"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:layout_marginTop="600dp"
         android:textSize="20dp"
         android:layout_marginLeft="10dp"/>
