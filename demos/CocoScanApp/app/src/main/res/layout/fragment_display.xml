@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightgreen">
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:text="Results:"
+        android:textStyle="bold"
+        android:textSize="34dp"
+        android:textColor="@color/darkgreen"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="25dp"/>
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/separator"
+        android:layout_marginTop="65dp"
+        android:layout_marginLeft="20dp"/>
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginLeft="25dp"
+        android:textColor="@color/darkgreen"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:text="*Maturity Level of Coconut"/>
+
+    <ImageView
+        android:id="@+id/displayImageView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp"/>
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="500dp"
+        android:layout_marginLeft="25dp"
+        android:textColor="@color/darkgreen"
+        android:textSize="20dp"
+        android:text="Insert Description of Coconut"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="600dp"
+        android:layout_marginLeft="20dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/darkgreen"
+        android:textStyle="bold"
+        android:text="Take Another Photo" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="600dp"
+        android:layout_marginLeft="200dp"
+        android:backgroundTint="@color/teagreen"
+        android:textColor="@color/darkgreen"
+        android:textStyle="bold"
+        android:text="Upload from Gallery" />
+
+
+</FrameLayout>

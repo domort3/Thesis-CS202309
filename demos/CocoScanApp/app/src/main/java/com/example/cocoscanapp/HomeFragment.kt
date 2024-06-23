@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.fragment.app.FragmentTransaction
 
 class HomeFragment : Fragment() {
 
@@ -30,13 +31,11 @@ class HomeFragment : Fragment() {
         button = view.findViewById(R.id.cameraButton)
         imageView = view.findViewById(R.id.imageLogo)
 
-        button.setOnClickListener{
-
+        button.setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
             try {
-                startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE)
-            }catch (e: ActivityNotFoundException){
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            } catch (e: ActivityNotFoundException) {
                 Toast.makeText(context, "Error: " + e.localizedMessage, Toast.LENGTH_SHORT).show()
             }
         }
@@ -47,7 +46,14 @@ class HomeFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            imageView.setImageBitmap(imageBitmap)
+
+            // Navigate to DisplayFragment with the captured image
+            val displayFragment = DisplayFragment.newInstance(imageBitmap)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_container, displayFragment)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
