@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import java.io.ByteArrayOutputStream
 
@@ -23,12 +24,14 @@ class DisplayFragment : Fragment() {
     lateinit var bitmap: Bitmap
 
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_display, container, false)
         val imageView = view.findViewById<ImageView>(R.id.displayImageView)
+        val resultView = view.findViewById<TextView>(R.id.resultView)
 
         // Retrieve the bitmap from arguments
         val byteArray = arguments?.getByteArray("image")
@@ -59,6 +62,10 @@ class DisplayFragment : Fragment() {
                     else if (result.labelName=="premature_coconut"){
                         result.labelName="premature coconut"
                     }
+
+                    val toast = Toast.makeText(requireContext(),  result.labelName, Toast.LENGTH_SHORT)
+                    toast.show()
+                    resultView.text = result.labelName
                     // set TextView answer here
                     //Variables from var result
                     //.labelName = name of label identified
