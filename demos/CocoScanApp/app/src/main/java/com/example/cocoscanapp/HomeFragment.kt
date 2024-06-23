@@ -17,7 +17,8 @@ import androidx.fragment.app.FragmentTransaction
 
 class HomeFragment : Fragment() {
 
-    lateinit var button: Button
+    lateinit var cameraButton: Button
+    lateinit var galleryButton: Button
     lateinit var imageView: ImageView
     val REQUEST_IMAGE_CAPTURE = 100
 
@@ -28,16 +29,26 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        button = view.findViewById(R.id.cameraButton)
+        cameraButton = view.findViewById(R.id.cameraButton)
+        galleryButton = view.findViewById(R.id.galleryButton)
         imageView = view.findViewById(R.id.imageLogo)
 
-        button.setOnClickListener {
+        cameraButton.setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             try {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
             } catch (e: ActivityNotFoundException) {
                 Toast.makeText(context, "Error: " + e.localizedMessage, Toast.LENGTH_SHORT).show()
             }
+        }
+
+        galleryButton.setOnClickListener {
+            val galleryFragment = GalleryFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_container, galleryFragment)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit()
         }
 
         return view
