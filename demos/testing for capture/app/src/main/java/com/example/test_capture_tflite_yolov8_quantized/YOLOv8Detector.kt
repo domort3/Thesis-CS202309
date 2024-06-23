@@ -25,8 +25,8 @@ class YOLOv8Detector (private val context: Context) {
     private var outputSize = intArrayOf(1, 7, 8400)
 
     private val CONFIDENCE_THRESHOLD = 0.75f;
-    private val IOU_THRESHOLD = 0.45f
-    private val IOU_CLASS_DUPLICATED_THRESHOLD = 0.7f
+    private val IOU_THRESHOLD = 0.65f
+    private val IOU_CLASS_DUPLICATED_THRESHOLD = 0.9f
 
     private var labelsFile = "coco-labels.txt"
     private var modelFile = "35-epoch_float32.tflite"
@@ -75,8 +75,6 @@ class YOLOv8Detector (private val context: Context) {
         tensorHeight = inputShape[2]
         numChannel = outputShape[1]
         numElements = outputShape[2]
-
-
     }
 
     fun clear() {
@@ -91,68 +89,41 @@ class YOLOv8Detector (private val context: Context) {
         if (tensorHeight == 0) return null
         if (numChannel == 0) return null
         if (numElements == 0) return null
-
-        var inferenceTime = SystemClock.uptimeMillis()
-
         val resizedBitmap = Bitmap.createScaledBitmap(frame, tensorWidth, tensorHeight, false)
-
         val tensorImage = TensorImage(DataType.FLOAT32)
         tensorImage.load(resizedBitmap)
         val processedImage = imageProcessor.process(tensorImage)
         val imageBuffer = processedImage.buffer
-
         val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), DataType.FLOAT32)
         interpreter?.run(imageBuffer, output.buffer)
-
-
         val outputPredictions = bestBox(output.floatArray)
-        inferenceTime = SystemClock.uptimeMillis() - inferenceTime
-
         return outputPredictions
 
     }
 
-
-
-
-
     // POST-PROCESSING
 
  fun bestBox (array : FloatArray): List<predictionVal>? {
-
     var allPredictions = mutableListOf<predictionVal>()
     val bitmapHeight = 640f
     val bitmapWidth = 640f
+    for (i in 0 until numElements){
 
-
-    for (c in 0 until numElements){
-        var gridStride = c * outputSize[1]
-        var x = array[0 + gridStride]
-        var y = array[1 + gridStride]
-        var w = array[2 + gridStride]
-        var h = array[3 + gridStride]
+        var gridStride = i * outputSize[1]
+        var x = array[0 + gridStride] *bitmapWidth
+        var y = array[1 + gridStride] *bitmapHeight
+        var w = array[2 + gridStride] *bitmapWidth
+        var h = array[3 + gridStride] *bitmapHeight
         var xmin = maxOf(0f,x-w/2)
         var ymin = maxOf(0f,y-h/2)
         var xmax = maxOf(bitmapWidth,x+w/2)
         var ymax = maxOf(bitmapHeight,y+h/2)
         var confidence = array[4+gridStride]
-        val classScores : FloatArray = Arrays.copyOfRange(
-            array,
-            7 + gridStride,
-            outputSize[1] + gridStride
-        )
-        var labelId = 0
-        var maxLabelScores = 0f
-    for (d in 0 until classScores.size){
-        if (classScores[d] > maxLabelScores){
-            maxLabelScores = classScores[d]
-            labelId = d
-        }
-    }
         var maxConf = -1.0f
         var maxIdx = -1
         var j = 4
-        var arrayIdx = c + numElements * j
+        var arrayIdx = i + numElements * j
+        println("current var: " + gridStride + ", confidence:" + confidence)
         while (j < numChannel){
             if (array[arrayIdx] > maxConf) {
                 maxConf = array[arrayIdx]
@@ -162,32 +133,23 @@ class YOLOv8Detector (private val context: Context) {
             arrayIdx += numElements
         }
 
-        allPredictions.add(
-            predictionVal(
-                labelId,
-                labels[maxIdx],
-                maxLabelScores,
-                maxConf,
-                RectF(xmin,ymin,xmax,ymax)
-            )
-        )
+            allPredictions.add(
+                predictionVal(
+                    maxIdx,
+                    labels[maxIdx],
+                    maxConf,
+                    RectF(xmin,ymin,xmax,ymax)
+                ))
+
 
     }
-     println(allPredictions.size)
     if (allPredictions.isEmpty()) return null
-
     val nmsPredictions = applyNMS(allPredictions)
     return applyClassNMS(nmsPredictions)
-
-
 }
-    
 
     private fun applyNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
-
         var nmsPredictions = mutableListOf<predictionVal>()
-        val floatHold : Float
-
         for (c in 0 until outputSize[2]-7){
             val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
                 8400
@@ -211,18 +173,15 @@ class YOLOv8Detector (private val context: Context) {
                 //WIP (ill finish later)
                 for (k in 1 until detections.size){
                     var detection : predictionVal = detections[k]
-                    if(boxIou(max.rectF,detection.rectF) < IOU_CLASS_DUPLICATED_THRESHOLD){
+                    if(boxIou(max.rectF,detection.rectF) < IOU_THRESHOLD){
                         pq.add(detection)
                     }
                 }
             }
                 }
         println(nmsPredictions.size)
-
         return nmsPredictions
-
         }
-
     private fun applyClassNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
         var sortedNMS = mutableListOf<predictionVal>()
 
@@ -254,7 +213,6 @@ class YOLOv8Detector (private val context: Context) {
         println(sortedNMS.size)
         return sortedNMS
     }
-
     private fun boxIou (a : RectF, b : RectF) : Float {
 
         val intersection = boxIntersection(a, b)
@@ -262,7 +220,6 @@ class YOLOv8Detector (private val context: Context) {
         return if (union <= 0) 1.0f else intersection / union
 
     }
-
     private fun boxIntersection (a: RectF, b: RectF): Float {
         val maxLeft = if (a.left > b.left) a.left else b.left
         val maxTop = if (a.top > b.top) a.top else b.top
@@ -273,13 +230,10 @@ class YOLOv8Detector (private val context: Context) {
         return if (w < 0 || h < 0) 0f else w * h
 
     }
-
     private fun boxUnion(a: RectF, b: RectF): Float {
         val i = boxIntersection(a, b)
         return (a.right - a.left) * (a.bottom - a.top) + (b.right - b.left) * (b.bottom - b.top) - i
     }
-
-    
 
 }
 

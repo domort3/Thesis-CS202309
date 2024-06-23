@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        // WIP (?)
         boxPaint.setStrokeWidth(5f);
         boxPaint.setStyle(Paint.Style.STROKE);
         boxPaint.setColor(Color.RED);
@@ -50,24 +51,17 @@ class MainActivity : AppCompatActivity() {
         textPain.setTextSize(50f);
         textPain.setColor(Color.GREEN);
         textPain.setStyle(Paint.Style.FILL);
+        // WIP (?)
 
+        //initialize model
         var modelSetup = YOLOv8Detector(this)
         modelSetup.setup()
-
-
 
         // assign buttons
         button_select = findViewById(R.id.button_select)
         button_predict = findViewById(R.id.button_predict)
         text_predict = findViewById(R.id.text_forPredict)
         imageView = findViewById(R.id.imageView)
-
-        // old code -----
-        var imageProcessor = ImageProcessor.Builder()
-            .add(ResizeOp(640, 640, ResizeOp.ResizeMethod.BILINEAR))
-            .build()
-        // old code -----
-
 
         button_select.setOnClickListener {
             val intent = Intent()
@@ -80,20 +74,23 @@ class MainActivity : AppCompatActivity() {
         button_predict.setOnClickListener {
             val outputs = modelSetup.detect(bitmap)
             val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-            //val canvas = Canvas(mutableBitmap)
-
-
-
+            val canvas = Canvas(mutableBitmap)
             if (outputs != null) {
-                println(outputs.size)
-                for (recognition in outputs) {
-                    println(recognition.cnf)
-                    println(recognition.labelName)
-                    text_predict.text = recognition.labelName
-                    }
+                for (i in outputs){
+                    if (i.cnf < 1.0f){
+                    var result = i
+                    text_predict.text = "label: " + result.labelName + ", confidence: " + result.cnf.toString()
+                    //build canvas
+                    canvas.drawRect(result.rectF, boxPaint)
+                        break;
                 }
+                }
+
+                }
+
             else{
                 println("No coconut found")
+                text_predict.text = "No coconut detected"
             }
             imageView.setImageBitmap(mutableBitmap)
             }
