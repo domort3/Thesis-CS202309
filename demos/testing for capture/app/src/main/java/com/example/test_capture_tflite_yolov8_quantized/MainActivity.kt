@@ -81,11 +81,10 @@ class MainActivity : AppCompatActivity() {
                     var result = i
                     text_predict.text = "label: " + result.labelName + ", confidence: " + result.cnf.toString()
                     //build canvas
-                    canvas.drawRect(result.rectF, boxPaint)
+                    //canvas.drawRect(result.rectF, boxPaint)
                         break;
                 }
                 }
-
                 }
 
             else{
@@ -94,12 +93,7 @@ class MainActivity : AppCompatActivity() {
             }
             imageView.setImageBitmap(mutableBitmap)
             }
-
         }
-
-
-
-
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,121 +110,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-// since this is a test app, put all funcs meant for detection model here
-
-    // on processing output
-     fun processOutput(array: FloatArray, numElements : Int, numChannel : Int, predictedImg : Bitmap ): finalDetails {
-         val CONFIDENCE_THRESHOLD = 0.75f
-         val IOU_THRESHOLD = 0.5f
-         var labelString : String
-         var labels = application.assets.open("coco-labels.txt").bufferedReader().readLines()
-         labelString = ""
-         println(numChannel.toString())
-         println(numElements.toString())
-
-        //section to find the best bounding box in detections
-        val boundingBoxes = mutableListOf<BoundingBox>()
-
-        for (c in 0 until numElements) {
-            var maxConf = -1.0f
-            var maxIdx = -1
-            var j = 4
-            var arrayIdx = c + numElements * j
-            while (j < numChannel){
-                if (array[arrayIdx] > maxConf) {
-                    maxConf = array[arrayIdx]
-                    maxIdx = j - 4
-                }
-                j++
-                arrayIdx += numElements
-            }
-
-            // bounding boxes with a detection added to list
-
-            if (maxConf > CONFIDENCE_THRESHOLD) {
-                val clsName = labels[maxIdx]
-                val cx = array[c] // 0
-                val cy = array[c + numElements] // 1
-                val w = array[c + numElements * 2]
-                val h = array[c + numElements * 3]
-                val x1 = cx - (w/2F)
-                val y1 = cy - (h/2F)
-                val x2 = cx + (w/2F)
-                val y2 = cy + (h/2F)
-                if (x1 < 0F || x1 > 1F) continue
-                if (y1 < 0F || y1 > 1F) continue
-                if (x2 < 0F || x2 > 1F) continue
-                if (y2 < 0F || y2 > 1F) continue
-
-                boundingBoxes.add(
-                    BoundingBox(
-                        x1 = x1, y1 = y1, x2 = x2, y2 = y2,
-                        cx = cx, cy = cy, w = w, h = h,
-                        cnf = maxConf, cls = maxIdx, clsName = clsName
-                    )
-                )
-            }
-        }
-        // adjust bitmap size for captured image
-        //TO DO: add a cropped section for coconut(?)
-        //default value
-        var finalImg = Bitmap.createScaledBitmap(predictedImg,640,640,false    )
-        var details = finalDetails(labelString, finalImg)
-
-
-        // return if nothing was detected
-        if (boundingBoxes.isEmpty()){
-            details.label = "unable to detect anything"
-            return details
-        }
-
-
-
-        println("boundbox initial amount:" + boundingBoxes.count())
-
-        var bestBox = applyNMS(boundingBoxes,IOU_THRESHOLD)
-        details.label=bestBox[0].clsName
-
-        // as of 06/15/2024 - NMS  method not working properly, some cnf vals in boundbox end up at 1.0f
-        //need methods to erase false positives
-        // change return here to redirecting to other funcs beforehand
-         return details
-     }
-    // function to apply Non-Maximum Suppression
-    private fun applyNMS(boxes: List<BoundingBox>, IOU_THRESHOLD : Float ): MutableList<BoundingBox> {
-        val sortedBoxes = boxes.sortedByDescending { it.cnf }.toMutableList()
-        val selectedBoxes = mutableListOf<BoundingBox>()
-        while(sortedBoxes.isNotEmpty()) {
-            val first = sortedBoxes.first()
-            selectedBoxes.add(first)
-            sortedBoxes.remove(first)
-
-            val iterator = sortedBoxes.iterator()
-            while (iterator.hasNext()) {
-                val nextBox = iterator.next()
-                val iou = calculateIoU(first, nextBox)
-                if (iou >= IOU_THRESHOLD) {
-                    iterator.remove()
-                }
-            }
-        }
-
-        return selectedBoxes
-
-    }
-
-    // function to calculate IoU
-
-    private fun calculateIoU(box1: BoundingBox, box2: BoundingBox): Float {
-        val x1 = maxOf(box1.x1, box2.x1)
-        val y1 = maxOf(box1.y1, box2.y1)
-        val x2 = minOf(box1.x2, box2.x2)
-        val y2 = minOf(box1.y2, box2.y2)
-        val intersectionArea = maxOf(0F, x2 - x1) * maxOf(0F, y2 - y1)
-        val box1Area = box1.w * box1.h
-        val box2Area = box2.w * box2.h
-        return intersectionArea / (box1Area + box2Area - intersectionArea)
-    }
 
 
 

@@ -1,5 +1,6 @@
 package com.example.cocoscanapp
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -21,6 +22,7 @@ class GalleryFragment : Fragment() {
     lateinit var resView: TextView
     lateinit var imageView: ImageView
     lateinit var bitmap: Bitmap
+    var appContext: Context = requireContext()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +35,42 @@ class GalleryFragment : Fragment() {
         predBtn = view.findViewById(R.id.predictBtn)
         resView = view.findViewById(R.id.resView)
         imageView = view.findViewById(R.id.imageView)
+
+
+        //-------------------- Using detector model here --------------------------
+        //initialize model
+        var modelSetup = YOLOv8Detector(appContext)
+        modelSetup.setup()
+
+        //run model
+        val outputs = modelSetup.detect(bitmap)
+        if (outputs != null) {
+            for (i in outputs){
+                if (i.cnf < 1.0f){
+                    var result = i
+                    if(result.labelName=="mature_coconut"){
+                        result.labelName="mature coconut"
+                    }
+                    else if(result.labelName=="overmature_coconut") {
+                        result.labelName="overmature coconut"
+                    }
+                    else if (result.labelName=="premature_coconut"){
+                        result.labelName="premature coconut"
+                    }
+                    // set TextView answer here
+                    //Variables from var result
+                    //.labelName = name of label identified
+                    //.rectF = rectF shape (if Paint() is to be used)
+                    //.cnf = confidence of result
+                    //text_predict.text = "label: " + result.labelName + ", confidence: " + result.cnf.toString()
+                    //build canvas
+                    //canvas.drawRect(result.rectF, boxPaint)
+                    break;
+                }
+            }
+        }
+
+        //-------------------- Using detector model here --------------------------
 
         selectBtn.setOnClickListener {
             val intent = Intent()
@@ -64,11 +102,13 @@ class GalleryFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == 100 && resultCode == android.app.Activity.RESULT_OK) {
             val uri = data?.data
             val contentResolver = context?.contentResolver
             bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            // get image bitmap from prev activity, set as bitmap to be processed by model
+            var resizedImg : Bitmap = Bitmap.createScaledBitmap(bitmap,640,640,false    )
+            bitmap = resizedImg
             imageView.setImageBitmap(bitmap)
         }
     }
