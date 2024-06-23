@@ -42,7 +42,7 @@ class YOLOv8Detector (private val context: Context) {
         .add(ResizeOp(640, 640, ResizeOp.ResizeMethod.BILINEAR))
         .build()
 
-    private fun setup() {
+    fun setup() {
 
         // read labels.txt
         try {
@@ -84,13 +84,13 @@ class YOLOv8Detector (private val context: Context) {
         interpreter = null
     }
 
-    fun detect(frame : Bitmap){
+    fun detect(frame : Bitmap) : List<predictionVal>?{
         // verify values
-        interpreter ?: return
-        if (tensorWidth == 0) return
-        if (tensorHeight == 0) return
-        if (numChannel == 0) return
-        if (numElements == 0) return
+        interpreter ?: return null
+        if (tensorWidth == 0) return null
+        if (tensorHeight == 0) return null
+        if (numChannel == 0) return null
+        if (numElements == 0) return null
 
         var inferenceTime = SystemClock.uptimeMillis()
 
@@ -108,101 +108,116 @@ class YOLOv8Detector (private val context: Context) {
         val outputPredictions = bestBox(output.floatArray)
         inferenceTime = SystemClock.uptimeMillis() - inferenceTime
 
-
-
+        return outputPredictions
 
     }
 
+
+
+
+
     // POST-PROCESSING
 
-private fun bestBox (array : FloatArray): List<predictionVal>? {
+ fun bestBox (array : FloatArray): List<predictionVal>? {
 
     var allPredictions = mutableListOf<predictionVal>()
-    val bitmapHeight = tensorHeight.toFloat()
-    val bitmapWidth = tensorWidth.toFloat()
+    val bitmapHeight = 640f
+    val bitmapWidth = 640f
+
 
     for (c in 0 until numElements){
-        var gridStride = c * outputSize[2]
-        var x = array[0 + gridStride] * bitmapWidth
-        var y = array[1 + gridStride] * bitmapHeight
-        var w = array[2 + gridStride] * bitmapWidth
-        var h = array[3 + gridStride] * bitmapHeight
-        var xmin = Math.max(0f,x-w/2)
-        var ymin = Math.max(0f,y-h/2)
-        var xmax = Math.max(bitmapWidth,x+w/2)
-        var ymax = Math.max(bitmapHeight,y+h/2)
+        var gridStride = c * outputSize[1]
+        var x = array[0 + gridStride]
+        var y = array[1 + gridStride]
+        var w = array[2 + gridStride]
+        var h = array[3 + gridStride]
+        var xmin = maxOf(0f,x-w/2)
+        var ymin = maxOf(0f,y-h/2)
+        var xmax = maxOf(bitmapWidth,x+w/2)
+        var ymax = maxOf(bitmapHeight,y+h/2)
         var confidence = array[4+gridStride]
         val classScores : FloatArray = Arrays.copyOfRange(
             array,
             7 + gridStride,
-            outputSize[2] + gridStride
+            outputSize[1] + gridStride
         )
-
         var labelId = 0
         var maxLabelScores = 0f
-
     for (d in 0 until classScores.size){
         if (classScores[d] > maxLabelScores){
             maxLabelScores = classScores[d]
             labelId = d
         }
     }
+        var maxConf = -1.0f
+        var maxIdx = -1
+        var j = 4
+        var arrayIdx = c + numElements * j
+        while (j < numChannel){
+            if (array[arrayIdx] > maxConf) {
+                maxConf = array[arrayIdx]
+                maxIdx = j - 4
+            }
+            j++
+            arrayIdx += numElements
+        }
+
         allPredictions.add(
             predictionVal(
                 labelId,
-                "",
+                labels[maxIdx],
                 maxLabelScores,
-                confidence,
+                maxConf,
                 RectF(xmin,ymin,xmax,ymax)
             )
         )
 
-
     }
+     println(allPredictions.size)
     if (allPredictions.isEmpty()) return null
 
-    var nmsPredictions = applyNMS(allPredictions)
+    val nmsPredictions = applyNMS(allPredictions)
     return applyClassNMS(nmsPredictions)
 
+
 }
+    
 
     private fun applyNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
 
         var nmsPredictions = mutableListOf<predictionVal>()
+        val floatHold : Float
 
         for (c in 0 until outputSize[2]-7){
             val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
-                8400,
-                Comparator<predictionVal> { l, r -> // Intentionally reversed to put high confidence at the head of the queue.
-                    r.getConfidence().compareTo(l.getConfidence())
-                })
+                8400
+            ) { l, r -> // Intentionally reversed to put high confidence at the head of the queue.
+                r.cnf.compareTo(l.cnf)
+            }
             for (j in 0 until predictions.size) {
-                if (predictions.get(j).getLabelId() == c && predictions.get(j)
-                        .getConfidence() > CONFIDENCE_THRESHOLD
+                if (predictions.get(j).labelId == c && predictions.get(j)
+                        .cnf > CONFIDENCE_THRESHOLD
                 ) {
                     pq.add(predictions.get(j))
                 }
-
             }
             while(pq.size > 0){
-                val a: Array<predictionVal?> = arrayOfNulls<predictionVal>(pq.size)
+                val a: Array<predictionVal> = arrayOf<predictionVal>()
                 val detections: Array<predictionVal> = pq.toArray(a)
                 val max: predictionVal = detections[0]
                 nmsPredictions.add(max);
                 pq.clear();
 
                 //WIP (ill finish later)
-
-                for (int k = 1; k < detections.length; k++) {
-                    Recognition detection = detections[k];
-                    if (boxIou(max.getLocation(), detection.getLocation()) < IOU_THRESHOLD) {
-                        pq.add(detection);
+                for (k in 1 until detections.size){
+                    var detection : predictionVal = detections[k]
+                    if(boxIou(max.rectF,detection.rectF) < IOU_CLASS_DUPLICATED_THRESHOLD){
+                        pq.add(detection)
                     }
-            }
-
-
-
                 }
+            }
+                }
+        println(nmsPredictions.size)
 
         return nmsPredictions
 
@@ -211,11 +226,64 @@ private fun bestBox (array : FloatArray): List<predictionVal>? {
     private fun applyClassNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
         var sortedNMS = mutableListOf<predictionVal>()
 
+        val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
+            100
+        ) { l, r -> // Intentionally reversed to put high confidence at the head of the queue.
+            r.cnf.compareTo(l.cnf)
+        }
+        for (j in 0 until predictions.size) {
+            if (predictions.get(j)
+                    .cnf > CONFIDENCE_THRESHOLD
+            ) {
+                pq.add(predictions.get(j))
+            }
+        }
+        while(pq.size > 0){
+            val a: Array<predictionVal> = arrayOf<predictionVal>()
+            val detections: Array<predictionVal> = pq.toArray(a)
+            val max: predictionVal = detections[0]
+            sortedNMS.add(max)
+            pq.clear()
+            for (k in 1 until detections.size){
+                var detection : predictionVal = detections[k]
+                if(boxIou(max.rectF,detection.rectF) < IOU_CLASS_DUPLICATED_THRESHOLD){
+                    pq.add(detection)
+                }
+            }
+        }
+        println(sortedNMS.size)
         return sortedNMS
     }
 
+    private fun boxIou (a : RectF, b : RectF) : Float {
+
+        val intersection = boxIntersection(a, b)
+        val union = boxUnion(a, b)
+        return if (union <= 0) 1.0f else intersection / union
+
+    }
+
+    private fun boxIntersection (a: RectF, b: RectF): Float {
+        val maxLeft = if (a.left > b.left) a.left else b.left
+        val maxTop = if (a.top > b.top) a.top else b.top
+        val minRight = if (a.right < b.right) a.right else b.right
+        val minBottom = if (a.bottom < b.bottom) a.bottom else b.bottom
+        val w = minRight - maxLeft
+        val h = minBottom - maxTop
+        return if (w < 0 || h < 0) 0f else w * h
+
+    }
+
+    private fun boxUnion(a: RectF, b: RectF): Float {
+        val i = boxIntersection(a, b)
+        return (a.right - a.left) * (a.bottom - a.top) + (b.right - b.left) * (b.bottom - b.top) - i
+    }
+
+    
 
 }
+
+
 
 
 

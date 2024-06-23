@@ -2,7 +2,10 @@ package com.example.test_capture_tflite_yolov8_quantized
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
@@ -13,14 +16,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.test_capture_tflite_yolov8_quantized.ml.AutoModel35EpochFloat32
-import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.image.ImageProcessor
-import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,8 +29,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var imageView: ImageView
     lateinit var bitmap: Bitmap
     private var interpreter : Interpreter? = null
-
-
+    var boxPaint: Paint = Paint()
+    var textPain: Paint = Paint()
 
 
 
@@ -45,14 +43,17 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        boxPaint.setStrokeWidth(5f);
+        boxPaint.setStyle(Paint.Style.STROKE);
+        boxPaint.setColor(Color.RED);
 
-        //
-        //create interpreter, values obtained from interpreter technically not needed, but added
-        //in case of changing to a different model
-        val modelForInterpreter = FileUtil.loadMappedFile(this, "35-epoch_float32.tflite")
-        val options = Interpreter.Options()
-        options.setNumThreads(4)
-        interpreter = Interpreter(modelForInterpreter, options)
+        textPain.setTextSize(50f);
+        textPain.setColor(Color.GREEN);
+        textPain.setStyle(Paint.Style.FILL);
+
+        var modelSetup = YOLOv8Detector(this)
+        modelSetup.setup()
+
 
 
         // assign buttons
@@ -61,9 +62,11 @@ class MainActivity : AppCompatActivity() {
         text_predict = findViewById(R.id.text_forPredict)
         imageView = findViewById(R.id.imageView)
 
+        // old code -----
         var imageProcessor = ImageProcessor.Builder()
             .add(ResizeOp(640, 640, ResizeOp.ResizeMethod.BILINEAR))
             .build()
+        // old code -----
 
 
         button_select.setOnClickListener {
@@ -75,33 +78,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         button_predict.setOnClickListener {
-            val model = AutoModel35EpochFloat32.newInstance(this)
-            val tensorImage = TensorImage(DataType.FLOAT32)
-            tensorImage.load(bitmap)
-            val processedImage = imageProcessor.process(tensorImage)
-            val processedBuffer = processedImage.buffer
-            val inputFeature = TensorBuffer.createFixedSize(intArrayOf(1 , 640, 640, 3), DataType.FLOAT32)
-            inputFeature.loadBuffer(processedBuffer)
-            val outputFeature = model.process(inputFeature)
-            //interpreter?.run(processedBuffer, inputFeature)
+            val outputs = modelSetup.detect(bitmap)
+            val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+            //val canvas = Canvas(mutableBitmap)
 
-            val outputArray = outputFeature.outputAsTensorBuffer.floatArray
-            //get shapes
-            val outputShape = interpreter?.getOutputTensor(0)?.shape()
-            var numChannel = outputShape?.get(1)
-            var numElements = outputShape?.get(2)
-            // remove nullable factor for numChannel & numElements
-            numChannel = numChannel!!
-            numElements = numElements!!
-            // parse output buffer to get label predicted
-            val labelOfOutput = processOutput(outputArray, numElements, numChannel, bitmap)
-            text_predict.text = labelOfOutput.label
-            // TO DO: Add cropped bitmap?
-            model.close()
+
+
+            if (outputs != null) {
+                println(outputs.size)
+                for (recognition in outputs) {
+                    println(recognition.cnf)
+                    println(recognition.labelName)
+                    text_predict.text = recognition.labelName
+                    }
+                }
+            else{
+                println("No coconut found")
+            }
+            imageView.setImageBitmap(mutableBitmap)
+            }
+
         }
 
 
-    }
+
 
 
     @Deprecated("Deprecated in Java")
