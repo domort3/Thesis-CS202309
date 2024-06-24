@@ -1,6 +1,7 @@
 package com.example.cocoscanapp
 
 import android.app.Activity.RESULT_OK
+import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
@@ -20,6 +21,7 @@ class HomeFragment : Fragment() {
     lateinit var cameraButton: Button
     lateinit var galleryButton: Button
     lateinit var imageView: ImageView
+    lateinit var openDialogButton: Button
     val REQUEST_IMAGE_CAPTURE = 100
 
     override fun onCreateView(
@@ -32,6 +34,8 @@ class HomeFragment : Fragment() {
         cameraButton = view.findViewById(R.id.cameraButton)
         galleryButton = view.findViewById(R.id.galleryButton)
         imageView = view.findViewById(R.id.imageLogo)
+        openDialogButton = view.findViewById(R.id.openDialogButton)
+
 
         cameraButton.setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -51,6 +55,10 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
+        openDialogButton.setOnClickListener {
+            showDialog()
+        }
+
         return view
     }
 
@@ -68,5 +76,18 @@ class HomeFragment : Fragment() {
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    private fun showDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.start_dialog)
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
+
+        val dialogButton = dialog.findViewById<Button>(R.id.dialogButton)
+        dialogButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

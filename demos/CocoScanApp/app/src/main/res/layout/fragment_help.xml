@@ -15,6 +15,13 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginRight="100dp"
         android:src="@drawable/tutorial" />
+
+    <ImageView
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/separator"
+        android:layout_marginTop="113dp"
+        android:layout_marginLeft="55dp"/>
     
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

@@ -12,19 +12,18 @@
         android:textSize="34dp"
         android:textColor="@color/darkgreen"
         android:layout_marginLeft="25dp"
-        android:layout_marginTop="25dp"/>
+        android:layout_marginTop="45dp"/>
 
     <ImageView
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:src="@drawable/separator"
-        android:layout_marginTop="65dp"
+        android:layout_marginTop="85dp"
         android:layout_marginLeft="20dp"/>
 
     <TextView
         android:layout_width="300dp"
         android:layout_height="30dp"
-        android:layout_marginLeft="25dp"
         android:layout_marginTop="80dp"
         android:text=""
         android:textColor="@color/darkgreen"
@@ -43,32 +42,49 @@
         android:layout_width="300dp"
         android:layout_height="30dp"
         android:layout_marginTop="500dp"
-        android:layout_marginLeft="25dp"
         android:textColor="@color/darkgreen"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_horizontal"
         android:textSize="20dp"
+        android:textStyle="bold"
         android:text="Insert Description of Coconut"/>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="600dp"
-        android:layout_marginLeft="20dp"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/darkgreen"
-        android:textStyle="bold"
-        android:text="Take Another Photo" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="600dp"
-        android:layout_marginLeft="200dp"
-        android:backgroundTint="@color/teagreen"
-        android:textColor="@color/darkgreen"
-        android:textStyle="bold"
-        android:text="Upload from Gallery" />
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="600dp"
+            android:drawableLeft="@drawable/baseline_photo_camera_24"
+            android:drawableTint="@color/darkgreen"
+            android:backgroundTint="@color/white"
+            android:textColor="@color/darkgreen"
+            android:textStyle="bold"
+            android:text="Take Photo" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="600dp"
+            android:layout_marginLeft="2dp"
+            android:drawableLeft="@drawable/baseline_image_search_24"
+            android:backgroundTint="@color/teagreen"
+            android:textColor="@color/darkgreen"
+            android:textStyle="bold"
+            android:text="Open Gallery" />
+
+
+    </LinearLayout>
+
+
 
 
 </FrameLayout>
