@@ -18,10 +18,9 @@ import java.io.InputStreamReader
 import java.util.Arrays
 import java.util.PriorityQueue
 
-
 class YOLOv8Detector(private val context: Context) {
 
-    private var inputSize = android.util.Size(640, 640)
+    //private var inputSize = android.util.Size(640, 640)
     private var outputSize = intArrayOf(1, 7, 8400)
 
     private val CONFIDENCE_THRESHOLD = 0.75f;
@@ -29,7 +28,7 @@ class YOLOv8Detector(private val context: Context) {
     private val IOU_CLASS_DUPLICATED_THRESHOLD = 0.9f
 
     private var labelsFile = "labels.txt"
-    private var modelFile = "35-epoch_float32.tflite"
+    //private var modelFile = "35-epoch_float32.tflite"
     private var labels = mutableListOf<String>()
 
     private var interpreter : Interpreter? = null
@@ -118,7 +117,7 @@ class YOLOv8Detector(private val context: Context) {
             var ymin = maxOf(0f,y-h/2)
             var xmax = maxOf(bitmapWidth,x+w/2)
             var ymax = maxOf(bitmapHeight,y+h/2)
-            var confidence = array[4+gridStride]
+            //var confidence = array[4+gridStride]
             var maxConf = -1.0f
             var maxIdx = -1
             var j = 4
