@@ -103,25 +103,13 @@ class YOLOv8Detector(private val context: Context) {
     // POST-PROCESSING
 
     fun bestBox (array : FloatArray): List<predictionVal>? {
-        var allPredictions = mutableListOf<predictionVal>()
-        val bitmapHeight = 640f
-        val bitmapWidth = 640f
-        for (i in 0 until numElements){
+        val predictionValues = mutableListOf<predictionVal>()
 
-            var gridStride = i * outputSize[1]
-            var x = array[0 + gridStride] *bitmapWidth
-            var y = array[1 + gridStride] *bitmapHeight
-            var w = array[2 + gridStride] *bitmapWidth
-            var h = array[3 + gridStride] *bitmapHeight
-            var xmin = maxOf(0f,x-w/2)
-            var ymin = maxOf(0f,y-h/2)
-            var xmax = maxOf(bitmapWidth,x+w/2)
-            var ymax = maxOf(bitmapHeight,y+h/2)
-            //var confidence = array[4+gridStride]
+        for (c in 0 until numElements) {
             var maxConf = -1.0f
             var maxIdx = -1
             var j = 4
-            var arrayIdx = i + numElements * j
+            var arrayIdx = c + numElements * j
             while (j < numChannel){
                 if (array[arrayIdx] > maxConf) {
                     maxConf = array[arrayIdx]
@@ -131,106 +119,67 @@ class YOLOv8Detector(private val context: Context) {
                 arrayIdx += numElements
             }
 
-            allPredictions.add(
-                predictionVal(
-                    maxIdx,
-                    labels[maxIdx],
-                    maxConf,
-                    RectF(xmin,ymin,xmax,ymax)
-                ))
+            if (maxConf > CONFIDENCE_THRESHOLD) {
+                val clsName = labels[maxIdx]
+                val cx = array[c] // 0
+                val cy = array[c + numElements] // 1
+                val w = array[c + numElements * 2]
+                val h = array[c + numElements * 3]
+                val x1 = cx - (w/2F)
+                val y1 = cy - (h/2F)
+                val x2 = cx + (w/2F)
+                val y2 = cy + (h/2F)
+                if (x1 < 0F || x1 > 1F) continue
+                if (y1 < 0F || y1 > 1F) continue
+                if (x2 < 0F || x2 > 1F) continue
+                if (y2 < 0F || y2 > 1F) continue
 
-
+                predictionValues.add(
+                    predictionVal(
+                        x1 = x1, y1 = y1, x2 = x2, y2 = y2,
+                        cx = cx, cy = cy, w = w, h = h,
+                        cnf = maxConf, cls = maxIdx, clsName = clsName
+                    )
+                )
+            }
         }
-        if (allPredictions.isEmpty()) return null
-        val nmsPredictions = applyNMS(allPredictions)
-        return applyClassNMS(nmsPredictions)
+
+        if (predictionValues.isEmpty()) return null
+
+        return applyNMS(predictionValues)
     }
 
-    private fun applyNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
-        var nmsPredictions = mutableListOf<predictionVal>()
-        for (c in 0 until outputSize[2]-7){
-            val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
-                8400
-            ) { l, r -> // Intentionally reversed to put high confidence at the head of the queue.
-                r.cnf.compareTo(l.cnf)
-            }
-            for (j in 0 until predictions.size) {
-                if (predictions.get(j).labelId == c && predictions.get(j)
-                        .cnf > CONFIDENCE_THRESHOLD
-                ) {
-                    pq.add(predictions.get(j))
-                }
-            }
-            while(pq.size > 0){
-                val a: Array<predictionVal> = arrayOf<predictionVal>()
-                val detections: Array<predictionVal> = pq.toArray(a)
-                val max: predictionVal = detections[0]
-                nmsPredictions.add(max);
-                pq.clear();
+    private fun applyNMS(boxes: List<predictionVal>) : MutableList<predictionVal> {
+        val sortedBoxes = boxes.sortedByDescending { it.cnf }.toMutableList()
+        val selectedBoxes = mutableListOf<predictionVal>()
 
-                //WIP (ill finish later)
-                for (k in 1 until detections.size){
-                    var detection : predictionVal = detections[k]
-                    if(boxIou(max.rectF,detection.rectF) < IOU_THRESHOLD){
-                        pq.add(detection)
-                    }
-                }
-            }
-        }
-        println(nmsPredictions.size)
-        return nmsPredictions
-    }
-    private fun applyClassNMS(predictions: List<predictionVal>):MutableList<predictionVal>{
-        var sortedNMS = mutableListOf<predictionVal>()
+        while(sortedBoxes.isNotEmpty()) {
+            val first = sortedBoxes.first()
+            selectedBoxes.add(first)
+            sortedBoxes.remove(first)
 
-        val pq: PriorityQueue<predictionVal> = PriorityQueue<predictionVal>(
-            100
-        ) { l, r -> // Intentionally reversed to put high confidence at the head of the queue.
-            r.cnf.compareTo(l.cnf)
-        }
-        for (j in 0 until predictions.size) {
-            if (predictions.get(j)
-                    .cnf > CONFIDENCE_THRESHOLD
-            ) {
-                pq.add(predictions.get(j))
-            }
-        }
-        while(pq.size > 0){
-            val a: Array<predictionVal> = arrayOf<predictionVal>()
-            val detections: Array<predictionVal> = pq.toArray(a)
-            val max: predictionVal = detections[0]
-            sortedNMS.add(max)
-            pq.clear()
-            for (k in 1 until detections.size){
-                var detection : predictionVal = detections[k]
-                if(boxIou(max.rectF,detection.rectF) < IOU_CLASS_DUPLICATED_THRESHOLD){
-                    pq.add(detection)
+            val iterator = sortedBoxes.iterator()
+            while (iterator.hasNext()) {
+                val nextBox = iterator.next()
+                val iou = calculateIoU(first, nextBox)
+                if (iou >= IOU_THRESHOLD) {
+                    iterator.remove()
                 }
             }
         }
-        println(sortedNMS.size)
-        return sortedNMS
-    }
-    private fun boxIou (a : RectF, b : RectF) : Float {
 
-        val intersection = boxIntersection(a, b)
-        val union = boxUnion(a, b)
-        return if (union <= 0) 1.0f else intersection / union
-
+        return selectedBoxes
     }
-    private fun boxIntersection (a: RectF, b: RectF): Float {
-        val maxLeft = if (a.left > b.left) a.left else b.left
-        val maxTop = if (a.top > b.top) a.top else b.top
-        val minRight = if (a.right < b.right) a.right else b.right
-        val minBottom = if (a.bottom < b.bottom) a.bottom else b.bottom
-        val w = minRight - maxLeft
-        val h = minBottom - maxTop
-        return if (w < 0 || h < 0) 0f else w * h
 
-    }
-    private fun boxUnion(a: RectF, b: RectF): Float {
-        val i = boxIntersection(a, b)
-        return (a.right - a.left) * (a.bottom - a.top) + (b.right - b.left) * (b.bottom - b.top) - i
+    private fun calculateIoU(box1: predictionVal, box2: predictionVal): Float {
+        val x1 = maxOf(box1.x1, box2.x1)
+        val y1 = maxOf(box1.y1, box2.y1)
+        val x2 = minOf(box1.x2, box2.x2)
+        val y2 = minOf(box1.y2, box2.y2)
+        val intersectionArea = maxOf(0F, x2 - x1) * maxOf(0F, y2 - y1)
+        val box1Area = box1.w * box1.h
+        val box2Area = box2.w * box2.h
+        return intersectionArea / (box1Area + box2Area - intersectionArea)
     }
 
 }
