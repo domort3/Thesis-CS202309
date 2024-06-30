@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream
 class DisplayFragment : Fragment() {
 
     private val REQUEST_IMAGE_CAPTURE = 100
-    lateinit var bitmap: Bitmap
+    private lateinit var bitmap: Bitmap
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +33,7 @@ class DisplayFragment : Fragment() {
 
         // Retrieve the bitmap from arguments
         val byteArray = arguments?.getByteArray("image")
-        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
         imageView.setImageBitmap(bitmap)
 
         // Set up buttons
@@ -42,31 +42,26 @@ class DisplayFragment : Fragment() {
 
         //-------------------- Using detector model here --------------------------
         //initialize model
-        var modelSetup = YOLOv8Detector(requireContext())
+        val modelSetup = YOLOv8Detector(requireContext())
         modelSetup.setup()
 
         //run model
         val outputs = modelSetup.detect(bitmap)
         if (outputs != null) {
-            for (i in outputs){
-                if (i.cnf < 1.0f){
+            for (i in outputs) {
+                if (i.cnf < 1.0f) {
                     var result = i
-                    if(result.labelName=="mature_coconut"){
-                        result.labelName="Mature Coconut"
-                    }
-                    else if(result.labelName=="overmature_coconut") {
-                        result.labelName="Overmature Coconut"
-                    }
-                    else if (result.labelName=="premature_coconut"){
-                        result.labelName="Premature Coconut"
+                    when (result.labelName) {
+                        "mature_coconut" -> result.labelName = "mature coconut"
+                        "overmature_coconut" -> result.labelName = "overmature coconut"
+                        "premature_coconut" -> result.labelName = "premature coconut"
                     }
 
                     resultView.text = result.labelName
-                    break;
+                    break
                 }
             }
         }
-
         //-------------------- Using detector model here --------------------------
 
         takePhotoButton.setOnClickListener {
@@ -78,6 +73,14 @@ class DisplayFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Recycle the bitmap to free up memory
+        if (::bitmap.isInitialized && !bitmap.isRecycled) {
+            bitmap.recycle()
+        }
     }
 
     private fun openCamera() {
@@ -115,8 +118,11 @@ class DisplayFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            var resizedImg : Bitmap = Bitmap.createScaledBitmap(imageBitmap,640,640,false)
-            bitmap = resizedImg
+            // Release the current bitmap if initialized
+            if (::bitmap.isInitialized && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+
             val displayFragment = newInstance(imageBitmap)
             fragmentManager?.beginTransaction()
                 ?.replace(R.id.frame_container, displayFragment)

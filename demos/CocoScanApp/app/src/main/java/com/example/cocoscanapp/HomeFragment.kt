@@ -32,7 +32,6 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         cameraButton = view.findViewById(R.id.cameraButton)
-        galleryButton = view.findViewById(R.id.galleryButton)
         imageView = view.findViewById(R.id.imageLogo)
         openDialogButton = view.findViewById(R.id.openDialogButton)
 
@@ -44,15 +43,6 @@ class HomeFragment : Fragment() {
             } catch (e: ActivityNotFoundException) {
                 Toast.makeText(context, "Error: " + e.localizedMessage, Toast.LENGTH_SHORT).show()
             }
-        }
-
-        galleryButton.setOnClickListener {
-            val galleryFragment = GalleryFragment()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frame_container, galleryFragment)
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit()
         }
 
         openDialogButton.setOnClickListener {

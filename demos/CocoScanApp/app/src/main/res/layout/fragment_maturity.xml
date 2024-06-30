@@ -56,6 +56,16 @@
         android:textSize="16dp"
         android:gravity="left"/>
 
+    <Button
+        android:id="@+id/helpButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="575dp"
+        android:layout_marginLeft="35dp"
+        android:textColor="@color/darkgreen"
+        android:backgroundTint="@color/teagreen"
+        android:text="Tutorial"/>
+
 
 
 

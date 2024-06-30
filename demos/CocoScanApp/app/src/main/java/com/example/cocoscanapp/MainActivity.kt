@@ -37,18 +37,12 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(HomeFragment())
                     true
                 }
-                R.id.bottom_gallery -> {
-                    replaceFragment(GalleryFragment())
-                    true
-                }
+
                 R.id.bottom_help -> {
                     replaceFragment(HelpFragment())
                     true
                 }
-                R.id.bottom_settings -> {
-                    replaceFragment(MaturityFragment())
-                    true
-                }
+
                 else -> false
             }
         }

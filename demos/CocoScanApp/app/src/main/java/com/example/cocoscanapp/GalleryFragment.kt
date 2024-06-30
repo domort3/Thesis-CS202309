@@ -19,7 +19,7 @@ class GalleryFragment : Fragment() {
     lateinit var selectBtn: Button
     lateinit var predictBtn: Button
     lateinit var imageView: ImageView
-    lateinit var bitmap: Bitmap
+    var bitmap: Bitmap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,8 +40,8 @@ class GalleryFragment : Fragment() {
         }
 
         predictBtn.setOnClickListener {
-            if (::bitmap.isInitialized) {
-                navigateToDisplayFragment(bitmap)
+            if (bitmap != null) {
+                navigateToDisplayFragment(bitmap!!)
             } else {
                 Toast.makeText(context, "Please select an image first", Toast.LENGTH_SHORT).show()
             }
@@ -57,7 +57,7 @@ class GalleryFragment : Fragment() {
             val contentResolver = context?.contentResolver
             bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
             // Resize the bitmap
-            val resizedImg: Bitmap = Bitmap.createScaledBitmap(bitmap, 640, 640, false)
+            val resizedImg: Bitmap = Bitmap.createScaledBitmap(bitmap!!, 640, 640, false)
             bitmap = resizedImg
             imageView.setImageBitmap(bitmap)
         }
@@ -69,5 +69,7 @@ class GalleryFragment : Fragment() {
             ?.replace(R.id.frame_container, displayFragment)
             ?.addToBackStack(null)
             ?.commit()
+
+        this.bitmap = null
     }
 }

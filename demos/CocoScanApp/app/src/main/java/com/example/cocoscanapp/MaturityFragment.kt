@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.viewpager2.widget.ViewPager2
@@ -28,7 +29,7 @@ class MaturityFragment : Fragment() {
             Model("Image 1", "Description 1", R.drawable.premature),
             Model("Image 2", "Description 2", R.drawable.mature),
             Model("Image 3", "Description 3", R.drawable.overmature),
-            )
+        )
         val adapter = MyPagerAdapter(items)
         viewPager.adapter = adapter
 
@@ -40,6 +41,16 @@ class MaturityFragment : Fragment() {
                 updateDotIndictor(position)
             }
         })
+
+        // Set up the button to navigate to TutorialFragment
+        val tutorialButton: Button = view.findViewById(R.id.helpButton)
+        tutorialButton.setOnClickListener {
+            fragmentManager?.beginTransaction()?.apply {
+                replace(R.id.frame_container, HelpFragment())
+                addToBackStack(null)
+                commit()
+            }
+        }
 
         return view
     }
@@ -58,4 +69,4 @@ class MaturityFragment : Fragment() {
             dot.isSelected = i == position
         }
     }
-    }
+}

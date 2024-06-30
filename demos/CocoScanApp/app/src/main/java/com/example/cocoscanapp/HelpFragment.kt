@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.viewpager2.widget.ViewPager2
@@ -42,6 +43,16 @@ class HelpFragment : Fragment() {
                 updateDotIndictor(position)
             }
         })
+
+        // Set up the button to navigate to MaturityFragment
+        val navigateMaturityButton: Button = view.findViewById(R.id.maturityButton)
+        navigateMaturityButton.setOnClickListener {
+            fragmentManager?.beginTransaction()?.apply {
+                replace(R.id.frame_container, MaturityFragment())
+                addToBackStack(null)
+                commit()
+            }
+        }
 
         return view
     }
