@@ -49,7 +49,7 @@ class cameraUpdated : Fragment(), YOLOv8Detector.DetectorListener {
     ): View {
         _fragmentCameraBinding = FragmentCameraRealtimeBinding.inflate(inflater, container, false)
 
-       _fragmentCameraBinding.apply {  }
+        _fragmentCameraBinding.apply {  }
 
         return binding.root
     }
@@ -197,5 +197,3 @@ class cameraUpdated : Fragment(), YOLOv8Detector.DetectorListener {
         }
     }
 }
-
-

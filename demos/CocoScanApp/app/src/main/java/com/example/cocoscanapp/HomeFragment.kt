@@ -37,11 +37,10 @@ class HomeFragment : Fragment() {
 
 
         cameraButton.setOnClickListener {
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            try {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(context, "Error: " + e.localizedMessage, Toast.LENGTH_SHORT).show()
+            fragmentManager?.beginTransaction()?.apply {
+                replace(R.id.frame_container, cameraUpdated())
+                addToBackStack(null)
+                commit()
             }
         }
 
@@ -52,21 +51,7 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
 
-            // Navigate to DisplayFragment with the captured image
-            val displayFragment = DisplayFragment.newInstance(imageBitmap)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frame_container, displayFragment)
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit()
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
 
     private fun showDialog() {
         val dialog = Dialog(requireContext())
