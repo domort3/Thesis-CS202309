@@ -182,4 +182,9 @@ class YOLOv8Detector(private val context: Context) {
         return intersectionArea / (box1Area + box2Area - intersectionArea)
     }
 
+    interface DetectorListener {
+        fun onEmptyDetect()
+        fun onDetect(boundingBoxes: List<predictionVal>, inferenceTime: Long)
+    }
+
 }
