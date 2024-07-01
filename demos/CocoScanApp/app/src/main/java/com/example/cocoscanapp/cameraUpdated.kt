@@ -21,19 +21,17 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.example.cocoscanapp.databinding.ActivityMainBinding
-
+import com.example.cocoscanapp.databinding.FragmentCameraRealtimeBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
 
-class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
-    /** Android ViewBinding */
-    private var _fragmentCameraBinding: FragmentCameraBinding? = null
+class cameraUpdated : Fragment(), YOLOv8Detector.DetectorListener {
 
-    private val binding get() = _fragmentCameraBinding!!
     private val isFrontCamera = false
+    private var _fragmentCameraBinding: FragmentCameraRealtimeBinding? = null
+    private val binding get() = _fragmentCameraBinding!!
 
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
@@ -49,9 +47,9 @@ class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _fragmentCameraBinding = FragmentCameraBinding.inflate(inflater, container, false)
+        _fragmentCameraBinding = FragmentCameraRealtimeBinding.inflate(inflater, container, false)
 
-        _fragmentCameraBinding.apply {  }
+       _fragmentCameraBinding.apply {  }
 
         return binding.root
     }
@@ -64,10 +62,10 @@ class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
         //_fragmentCameraBinding = ActivityMainBinding.inflate(layoutInflater)
         //setContentView(binding.root)
 
-        detector = YOLOv8Detector(requireContext())
+        detector = YOLOv8Detector(requireContext(), this)
         detector.setup()
 
-            startCamera()
+        startCamera()
 
 
 
@@ -189,14 +187,15 @@ class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
         binding.overlay.invalidate()
     }
 
-    override fun onDetect(boundingBoxes: List<predictionVal>, inferenceTime: Long) {
-        runOnUiThread {
+    override fun onDetect(predictions: List<predictionVal>, inferenceTime: Long) {
+        requireActivity().runOnUiThread() {
             binding.inferenceTime.text = "${inferenceTime}ms"
             binding.overlay.apply {
-                setResults(boundingBoxes)
+                setResults(predictions)
                 invalidate()
             }
         }
     }
-    }
+}
+
 

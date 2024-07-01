@@ -1,3 +1,5 @@
+package com.example.cocoscanapp
+
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -14,7 +16,7 @@ import kotlin.math.max
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
-    private var results = listOf<BoundingBox>()
+    private var results = listOf<predictionVal>()
     private var boxPaint = Paint()
     private var textBackgroundPaint = Paint()
     private var textPaint = Paint()
@@ -74,7 +76,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         }
     }
 
-    fun setResults(boundingBoxes: List<BoundingBox>) {
+    fun setResults(boundingBoxes: List<predictionVal>) {
         results = boundingBoxes
         invalidate()
     }

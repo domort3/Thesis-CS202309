@@ -18,7 +18,7 @@ import java.io.InputStreamReader
 import java.util.Arrays
 import java.util.PriorityQueue
 
-class YOLOv8Detector(private val context: Context) {
+class YOLOv8Detector(private val context: Context,private val detectorListener: DetectorListener) {
 
     //private var inputSize = android.util.Size(640, 640)
     private var outputSize = intArrayOf(1, 7, 8400)
@@ -81,13 +81,16 @@ class YOLOv8Detector(private val context: Context) {
         interpreter = null
     }
 
-    fun detect(frame : Bitmap) : List<predictionVal>?{
+    fun detect(frame : Bitmap){
         // verify values
-        interpreter ?: return null
-        if (tensorWidth == 0) return null
-        if (tensorHeight == 0) return null
-        if (numChannel == 0) return null
-        if (numElements == 0) return null
+        interpreter ?: return
+        if (tensorWidth == 0) return
+        if (tensorHeight == 0) return
+        if (numChannel == 0) return
+        if (numElements == 0) return
+
+        var inferenceTime = SystemClock.uptimeMillis()
+
         val resizedBitmap = Bitmap.createScaledBitmap(frame, tensorWidth, tensorHeight, false)
         val tensorImage = TensorImage(DataType.FLOAT32)
         tensorImage.load(resizedBitmap)
@@ -96,7 +99,11 @@ class YOLOv8Detector(private val context: Context) {
         val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), DataType.FLOAT32)
         interpreter?.run(imageBuffer, output.buffer)
         val outputPredictions = bestBox(output.floatArray)
-        return outputPredictions
+        inferenceTime = SystemClock.uptimeMillis() - inferenceTime
+
+        if (outputPredictions != null) {
+            detectorListener.onDetect(outputPredictions, inferenceTime)
+        }
 
     }
 
