@@ -1,11 +1,15 @@
 package com.example.cocoscanapp
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
@@ -17,6 +21,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.cocoscanapp.databinding.ActivityMainBinding
 import com.example.cocoscanapp.databinding.FragmentCameraBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -31,42 +36,58 @@ private const val ARG_PARAM2 = "param2"
  * Use the [CameraFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class CameraFragment : Fragment(), {
-    private var _binding : FragmentCameraBinding? = null
-    private val binding get() = _binding!!
+class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
+    /** Android ViewBinding */
+    private var _fragmentCameraBinding: FragmentCameraBinding? = null
+
+    private val binding get() = _fragmentCameraBinding!!
     private val isFrontCamera = false
 
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private lateinit var detector: Detector
+    private lateinit var detector: YOLOv8Detector
+
 
     private lateinit var cameraExecutor: ExecutorService
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _fragmentCameraBinding = FragmentCameraBinding.inflate(inflater, container, false)
 
-        detector = Detector(baseContext, MODEL_PATH, LABELS_PATH, this)
+        _fragmentCameraBinding.apply {  }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //_fragmentCameraBinding = ActivityMainBinding.inflate(layoutInflater)
+        //setContentView(binding.root)
+
+        detector = YOLOv8Detector(requireContext())
         detector.setup()
 
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            ActivityCompat.requestPermissions(requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
             cameraProvider  = cameraProviderFuture.get()
             bindCameraUseCases()
-        }, ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun bindCameraUseCases() {
@@ -139,7 +160,7 @@ class CameraFragment : Fragment(), {
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -174,7 +195,7 @@ class CameraFragment : Fragment(), {
         binding.overlay.invalidate()
     }
 
-    override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
+    override fun onDetect(boundingBoxes: List<predictionVal>, inferenceTime: Long) {{
         runOnUiThread {
             binding.inferenceTime.text = "${inferenceTime}ms"
             binding.overlay.apply {
@@ -182,5 +203,6 @@ class CameraFragment : Fragment(), {
                 invalidate()
             }
         }
+    }
     }
 }

@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.example.cocoscanapp.BoundingBox
+import com.example.cocoscanapp.R
 import java.util.LinkedList
 import kotlin.math.max
 
@@ -41,7 +42,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         textPaint.style = Paint.Style.FILL
         textPaint.textSize = 50f
 
-        boxPaint.color = ContextCompat.getColor(context!!, R.color.bounding_box_color)
+        boxPaint.color = ContextCompat.getColor(context!!, R.color.lightgreen)
         boxPaint.strokeWidth = 8F
         boxPaint.style = Paint.Style.STROKE
     }
