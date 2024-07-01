@@ -203,6 +203,7 @@ class CameraFragment : Fragment(), YOLOv8Detector.DetectorListener {
                 invalidate()
             }
         }
+        }
     }
     }
 }
