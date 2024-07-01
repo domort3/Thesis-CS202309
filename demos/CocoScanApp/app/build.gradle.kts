@@ -35,7 +35,7 @@ android {
     }
     buildFeatures {
         mlModelBinding = true
-        viewBinding true
+        viewBinding = true
     }
 }
 

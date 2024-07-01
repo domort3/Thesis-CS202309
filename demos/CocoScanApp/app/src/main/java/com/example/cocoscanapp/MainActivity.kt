@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import com.example.cocoscanapp.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -26,8 +27,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
 
         changeStatusBarColor("#C6EDC3")
         bottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -50,19 +52,16 @@ class MainActivity : AppCompatActivity() {
         }
         replaceFragment(HomeFragment())
 
-        fabCenter.setOnClickListener {
-            openCamera()
+        binding.fabCenter.setOnClickListener {
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.frame_container, CameraFragment())
+                addToBackStack(null)
+                commit()
+            }
         }
     }
 
-    private fun openCamera() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "Error: " + e.localizedMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

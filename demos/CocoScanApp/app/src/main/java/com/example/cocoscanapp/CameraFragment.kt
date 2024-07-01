@@ -17,6 +17,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.cocoscanapp.databinding.FragmentCameraBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -31,6 +32,8 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class CameraFragment : Fragment(), {
+    private var _binding : FragmentCameraBinding? = null
+    private val binding get() = _binding!!
     private val isFrontCamera = false
 
     private var preview: Preview? = null
