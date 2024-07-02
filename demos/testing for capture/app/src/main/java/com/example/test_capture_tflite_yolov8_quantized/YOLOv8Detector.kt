@@ -7,6 +7,8 @@ import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
+import org.tensorflow.lite.support.common.ops.CastOp
+import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
@@ -39,7 +41,8 @@ class YOLOv8Detector (private val context: Context) {
     private var numElements = 0
 
     private val imageProcessor = ImageProcessor.Builder()
-        .add(ResizeOp(640, 640, ResizeOp.ResizeMethod.BILINEAR))
+        .add(NormalizeOp(0f, 255f))
+        .add(CastOp(DataType.FLOAT32))
         .build()
 
     fun setup() {

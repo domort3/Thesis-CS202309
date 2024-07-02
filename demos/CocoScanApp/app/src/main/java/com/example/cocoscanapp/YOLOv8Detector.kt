@@ -7,6 +7,8 @@ import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
+import org.tensorflow.lite.support.common.ops.CastOp
+import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
@@ -18,34 +20,42 @@ import java.io.InputStreamReader
 import java.util.Arrays
 import java.util.PriorityQueue
 
-class YOLOv8Detector(private val context: Context,private val detectorListener: DetectorListener) {
+class YOLOv8Detector(
+    private val context: Context,
+    private val detectorListener: DetectorListener)
+{
 
-    //private var inputSize = android.util.Size(640, 640)
-    private var outputSize = intArrayOf(1, 7, 8400)
-
-    private val CONFIDENCE_THRESHOLD = 0.75f;
-    private val IOU_THRESHOLD = 0.65f
-    private val IOU_CLASS_DUPLICATED_THRESHOLD = 0.9f
-
-    private var labelsFile = "labels.txt"
-    //private var modelFile = "35-epoch_float32.tflite"
+    private var interpreter: Interpreter? = null
     private var labels = mutableListOf<String>()
 
-    private var interpreter : Interpreter? = null
     private var tensorWidth = 0
     private var tensorHeight = 0
     private var numChannel = 0
     private var numElements = 0
 
     private val imageProcessor = ImageProcessor.Builder()
-        .add(ResizeOp(640, 640, ResizeOp.ResizeMethod.BILINEAR))
+        .add(NormalizeOp(INPUT_MEAN, INPUT_STANDARD_DEVIATION))
+        .add(CastOp(INPUT_IMAGE_TYPE))
         .build()
 
-    fun setup() {
 
-        // read labels.txt
+
+    fun setup() {
+        val model = FileUtil.loadMappedFile(context, "35-epoch_float32.tflite")
+        val options = Interpreter.Options()
+        options.setNumThreads(4)
+        interpreter = Interpreter(model, options)
+
+        val inputShape = interpreter?.getInputTensor(0)?.shape() ?: return
+        val outputShape = interpreter?.getOutputTensor(0)?.shape() ?: return
+
+        tensorWidth = inputShape[1]
+        tensorHeight = inputShape[2]
+        numChannel = outputShape[1]
+        numElements = outputShape[2]
+
         try {
-            val inputStream: InputStream = context.assets.open(labelsFile)
+            val inputStream: InputStream = context.assets.open("labels.txt")
             val reader = BufferedReader(InputStreamReader(inputStream))
 
             var line: String? = reader.readLine()
@@ -56,24 +66,9 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
 
             reader.close()
             inputStream.close()
-
-        }catch (e: IOException) {
+        } catch (e: IOException) {
             e.printStackTrace()
         }
-
-        //setup interpreter
-        val modelForInterpreter = FileUtil.loadMappedFile(context, "35-epoch_float32.tflite")
-        val options = Interpreter.Options()
-        options.setNumThreads(4)
-        interpreter = Interpreter(modelForInterpreter, options)
-
-        val inputShape = interpreter?.getInputTensor(0)?.shape() ?: return
-        val outputShape = interpreter?.getOutputTensor(0)?.shape() ?: return
-
-        tensorWidth = inputShape[1]
-        tensorHeight = inputShape[2]
-        numChannel = outputShape[1]
-        numElements = outputShape[2]
     }
 
     fun clear() {
@@ -81,8 +76,7 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
         interpreter = null
     }
 
-    fun detect(frame : Bitmap){
-        // verify values
+    fun detect(frame: Bitmap) {
         interpreter ?: return
         if (tensorWidth == 0) return
         if (tensorHeight == 0) return
@@ -92,25 +86,31 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
         var inferenceTime = SystemClock.uptimeMillis()
 
         val resizedBitmap = Bitmap.createScaledBitmap(frame, tensorWidth, tensorHeight, false)
+
         val tensorImage = TensorImage(DataType.FLOAT32)
         tensorImage.load(resizedBitmap)
         val processedImage = imageProcessor.process(tensorImage)
         val imageBuffer = processedImage.buffer
-        val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), DataType.FLOAT32)
+
+        val output = TensorBuffer.createFixedSize(intArrayOf(1 , numChannel, numElements), OUTPUT_IMAGE_TYPE)
         interpreter?.run(imageBuffer, output.buffer)
-        val outputPredictions = bestBox(output.floatArray)
+
+
+        val bestBoxes = bestBox(output.floatArray)
         inferenceTime = SystemClock.uptimeMillis() - inferenceTime
 
-        if (outputPredictions != null) {
-            detectorListener.onDetect(outputPredictions, inferenceTime)
+
+        if (bestBoxes == null) {
+            detectorListener.onEmptyDetect()
+            return
         }
 
+        detectorListener.onDetect(bestBoxes, inferenceTime)
     }
 
-    // POST-PROCESSING
+    private fun bestBox(array: FloatArray) : List<BoundingBox>? {
 
-    fun bestBox (array : FloatArray): List<predictionVal>? {
-        val predictionValues = mutableListOf<predictionVal>()
+        val boundingBoxes = mutableListOf<BoundingBox>()
 
         for (c in 0 until numElements) {
             var maxConf = -1.0f
@@ -141,8 +141,8 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
                 if (x2 < 0F || x2 > 1F) continue
                 if (y2 < 0F || y2 > 1F) continue
 
-                predictionValues.add(
-                    predictionVal(
+                boundingBoxes.add(
+                    BoundingBox(
                         x1 = x1, y1 = y1, x2 = x2, y2 = y2,
                         cx = cx, cy = cy, w = w, h = h,
                         cnf = maxConf, cls = maxIdx, clsName = clsName
@@ -151,14 +151,14 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
             }
         }
 
-        if (predictionValues.isEmpty()) return null
+        if (boundingBoxes.isEmpty()) return null
 
-        return applyNMS(predictionValues)
+        return applyNMS(boundingBoxes)
     }
 
-    private fun applyNMS(boxes: List<predictionVal>) : MutableList<predictionVal> {
+    private fun applyNMS(boxes: List<BoundingBox>) : MutableList<BoundingBox> {
         val sortedBoxes = boxes.sortedByDescending { it.cnf }.toMutableList()
-        val selectedBoxes = mutableListOf<predictionVal>()
+        val selectedBoxes = mutableListOf<BoundingBox>()
 
         while(sortedBoxes.isNotEmpty()) {
             val first = sortedBoxes.first()
@@ -178,7 +178,7 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
         return selectedBoxes
     }
 
-    private fun calculateIoU(box1: predictionVal, box2: predictionVal): Float {
+    private fun calculateIoU(box1: BoundingBox, box2: BoundingBox): Float {
         val x1 = maxOf(box1.x1, box2.x1)
         val y1 = maxOf(box1.y1, box2.y1)
         val x2 = minOf(box1.x2, box2.x2)
@@ -191,7 +191,17 @@ class YOLOv8Detector(private val context: Context,private val detectorListener: 
 
     interface DetectorListener {
         fun onEmptyDetect()
-        fun onDetect(boundingBoxes: List<predictionVal>, inferenceTime: Long)
+        fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long)
     }
+
+    companion object {
+        private const val INPUT_MEAN = 0f
+        private const val INPUT_STANDARD_DEVIATION = 255f
+        private val INPUT_IMAGE_TYPE = DataType.FLOAT32
+        private val OUTPUT_IMAGE_TYPE = DataType.FLOAT32
+        private const val CONFIDENCE_THRESHOLD = 0.3F
+        private const val IOU_THRESHOLD = 0.5F
+    }
+
 
 }

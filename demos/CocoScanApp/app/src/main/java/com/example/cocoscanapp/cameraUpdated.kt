@@ -187,11 +187,12 @@ class cameraUpdated : Fragment(), YOLOv8Detector.DetectorListener {
         binding.overlay.invalidate()
     }
 
-    override fun onDetect(predictions: List<predictionVal>, inferenceTime: Long) {
+
+    override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
         requireActivity().runOnUiThread() {
             binding.inferenceTime.text = "${inferenceTime}ms"
             binding.overlay.apply {
-                setResults(predictions)
+                setResults(boundingBoxes)
                 invalidate()
             }
         }
