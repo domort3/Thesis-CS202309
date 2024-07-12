@@ -1,6 +1,7 @@
 package com.example.cocoscanapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.cocoscanapp.databinding.ActivityMainBinding
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
                 replace(R.id.frame_container, cameraUpdated())
                 addToBackStack(null)
                 commit()
+                Toast.makeText(applicationContext, "DISCLAIMER: Predictions are not final and may be inaccurate", Toast.LENGTH_LONG).show()
             }
         }
     }

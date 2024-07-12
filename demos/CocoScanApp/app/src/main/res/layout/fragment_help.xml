@@ -8,6 +8,14 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+    <Button
+        android:id="@+id/openDialogButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginLeft="310dp"
+        android:background="@drawable/baseline_menu_book_24"/>"
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="180dp"

@@ -1,5 +1,6 @@
 package com.example.cocoscanapp
 
+import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -54,6 +55,12 @@ class HelpFragment : Fragment() {
             }
         }
 
+        // Add dialog button functionality
+        val openDialogButton: Button = view.findViewById(R.id.openDialogButton)
+        openDialogButton.setOnClickListener {
+            showDialog()
+        }
+
         return view
     }
 
@@ -70,5 +77,18 @@ class HelpFragment : Fragment() {
             val dot = dotIndictor.getChildAt(i) as ImageView
             dot.isSelected = i == position
         }
+    }
+
+    private fun showDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.research_dialog)
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background)
+
+        val dialogButton = dialog.findViewById<Button>(R.id.dialogButton)
+        dialogButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

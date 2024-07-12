@@ -8,6 +8,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.cocoscanapp.BoundingBox
 import com.example.cocoscanapp.R
@@ -59,7 +60,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             val bottom = it.y2 * height
 
             canvas.drawRect(left, top, right, bottom, boxPaint)
-            val drawableText = it.clsName
+            val cnfResults = it.cnf * 100
+            val cnfRounded = "%.2f".format(cnfResults).toDouble()
+            val drawableText = "Maturity: "+it.clsName+" - %"+cnfRounded.toString()
 
             textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
             val textWidth = bounds.width()
@@ -72,6 +75,19 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 textBackgroundPaint
             )
             canvas.drawText(drawableText, left, top + bounds.height(), textPaint)
+
+            if (it.clsName == "premature_coconut" && cnfRounded > 90) {
+                Toast.makeText(context, "Tiny, unripe, green coconut lacking of maturity", Toast.LENGTH_SHORT).show()
+            }
+
+            if (it.clsName == "mature_coconut" && cnfRounded > 90) {
+                Toast.makeText(context, "Edible with firm flesh and sweet water", Toast.LENGTH_SHORT).show()
+            }
+
+            if (it.clsName == "overmature_coconut" && cnfRounded > 90) {
+                Toast.makeText(context, "Aged and dried with tough husk and possibly spoiled", Toast.LENGTH_SHORT).show()
+            }
+
 
         }
     }

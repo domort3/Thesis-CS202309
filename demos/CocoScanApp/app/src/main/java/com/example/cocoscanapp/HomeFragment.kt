@@ -41,6 +41,7 @@ class HomeFragment : Fragment() {
                 replace(R.id.frame_container, cameraUpdated())
                 addToBackStack(null)
                 commit()
+                Toast.makeText(activity, "DISCLAIMER: Predictions are NOT final and may be inaccurate", Toast.LENGTH_LONG).show()
             }
         }
 
