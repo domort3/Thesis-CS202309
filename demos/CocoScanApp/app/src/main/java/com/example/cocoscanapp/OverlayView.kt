@@ -14,9 +14,14 @@ import com.example.cocoscanapp.BoundingBox
 import com.example.cocoscanapp.R
 import java.util.LinkedList
 import kotlin.math.max
+import android.os.Handler
+import android.os.Looper
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
+    private val handler = Handler(Looper.getMainLooper())
+    private var lastToastTime = 0L
+    private val toastDelay = 5000L // 5 seconds in milliseconds
     private var results = listOf<BoundingBox>()
     private var boxPaint = Paint()
     private var textBackgroundPaint = Paint()
@@ -64,30 +69,43 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             val cnfRounded = "%.2f".format(cnfResults).toDouble()
             val drawableText = "Maturity: "+it.clsName+" - %"+cnfRounded.toString()
 
+            textPaint.textSize = 30f // Change this value to your desired text size
+
             textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
             val textWidth = bounds.width()
             val textHeight = bounds.height()
-            canvas.drawRect(
-                left,
-                top,
-                left + textWidth + BOUNDING_RECT_TEXT_PADDING,
-                top + textHeight + BOUNDING_RECT_TEXT_PADDING,
-                textBackgroundPaint
-            )
+
+            // Adjust the background size
+            val backgroundPadding = 15 // Change this value to adjust padding
+            val backgroundLeft = left - backgroundPadding
+            val backgroundTop = top - backgroundPadding
+            val backgroundRight = left + textWidth + backgroundPadding
+            val backgroundBottom = top + textHeight + backgroundPadding
+
+            // Draw the background rectangle with adjusted size
+            canvas.drawRect(backgroundLeft, backgroundTop, backgroundRight, backgroundBottom, textBackgroundPaint)
             canvas.drawText(drawableText, left, top + bounds.height(), textPaint)
 
-            if (it.clsName == "premature_coconut" && cnfRounded > 90) {
-                Toast.makeText(context, "Tiny, unripe, green coconut lacking of maturity", Toast.LENGTH_SHORT).show()
+            if (it.clsName == "Premature" && cnfRounded > 90 && System.currentTimeMillis() - lastToastTime > toastDelay) {
+                lastToastTime = System.currentTimeMillis()
+                handler.postDelayed({
+                    Toast.makeText(context, "Tiny, unripe, green coconut lacking of maturity", Toast.LENGTH_SHORT).show()
+                }, toastDelay)
             }
 
-            if (it.clsName == "mature_coconut" && cnfRounded > 90) {
-                Toast.makeText(context, "Edible with firm flesh and sweet water", Toast.LENGTH_SHORT).show()
+            if (it.clsName == "Mature" && cnfRounded > 90 && System.currentTimeMillis() - lastToastTime > toastDelay) {
+                lastToastTime = System.currentTimeMillis()
+                handler.postDelayed({
+                    Toast.makeText(context, "Edible with firm flesh and sweet water", Toast.LENGTH_SHORT).show()
+                }, toastDelay)
             }
 
-            if (it.clsName == "overmature_coconut" && cnfRounded > 90) {
-                Toast.makeText(context, "Aged and dried with tough husk and possibly spoiled", Toast.LENGTH_SHORT).show()
+            if (it.clsName == "Overmature" && cnfRounded > 90 && System.currentTimeMillis() - lastToastTime > toastDelay) {
+                lastToastTime = System.currentTimeMillis()
+                handler.postDelayed({
+                    Toast.makeText(context, "Aged and dried with tough husk and possibly spoiled", Toast.LENGTH_SHORT).show()
+                }, toastDelay)
             }
-
 
         }
     }
