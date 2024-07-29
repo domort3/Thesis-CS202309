@@ -21,7 +21,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private val handler = Handler(Looper.getMainLooper())
     private var lastToastTime = 0L
-    private val toastDelay = 5000L // 5 seconds in milliseconds
+    private val toastDelay = 5000L 
     private var results = listOf<BoundingBox>()
     private var boxPaint = Paint()
     private var textBackgroundPaint = Paint()
@@ -69,20 +69,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             val cnfRounded = "%.2f".format(cnfResults).toDouble()
             val drawableText = "Maturity: "+it.clsName+" - %"+cnfRounded.toString()
 
-            textPaint.textSize = 30f // Change this value to your desired text size
+            textPaint.textSize = 30f 
 
             textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
             val textWidth = bounds.width()
             val textHeight = bounds.height()
 
-            // Adjust the background size
-            val backgroundPadding = 15 // Change this value to adjust padding
+            val backgroundPadding = 15 
             val backgroundLeft = left - backgroundPadding
             val backgroundTop = top - backgroundPadding
             val backgroundRight = left + textWidth + backgroundPadding
             val backgroundBottom = top + textHeight + backgroundPadding
 
-            // Draw the background rectangle with adjusted size
             canvas.drawRect(backgroundLeft, backgroundTop, backgroundRight, backgroundBottom, textBackgroundPaint)
             canvas.drawText(drawableText, left, top + bounds.height(), textPaint)
 
